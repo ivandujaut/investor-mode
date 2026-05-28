@@ -337,7 +337,7 @@ aunque solo puso una parte. Eso es el efecto del apalancamiento.
 El apalancamiento amplifica la sensibilidad del ROI a cambios en la 
 apreciación del activo, en un factor exactamente igual al leverage ratio.
 El ROI del inversor apalancado es ~3,33 veces más sensible a cambios en 
-la apreciación que el ROI del inversor al contador
+la apreciación que el ROI del inversor al contado
 
 Leverage ratio = Valor del activo / Capital propio = 180.000 / 54.000 = 3,33×
 
