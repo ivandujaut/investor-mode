@@ -208,8 +208,7 @@ Casos de borde para testing:
 
 ### 2.5 Supuestos default del motor v1
 
-[Tabla con los valores a hardcodear en el motor para cada escenario, 
-con las fuentes de cada uno. Propuesta que se ajusta según investigación:]
+La siguiente tabla agrupa los supuestos default que usará el motor v1 para cada escenario:
 
 | Variable                  | Conservador | Moderado | Agresivo  | Fuente                                        |
 |---------------------------|-------------|----------|-----------|-----------------------------------------------|
