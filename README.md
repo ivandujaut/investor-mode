@@ -47,9 +47,9 @@ del marketplace (buscador + corredor).
 - Hosting: Vercel
 - Diseño: Figma con design system mínimo derivado de la identidad visual de Roomix
 
-## Cómo correr (próximamente)
+## Cómo correr
 
-Instrucciones a publicar en Fase 2 cuando exista código ejecutable.
+Sin código ejecutable todavía. Instrucciones a publicar al cierre de Fase 2 (semana 4).
 
 ---
 
