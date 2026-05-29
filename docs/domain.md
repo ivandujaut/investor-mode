@@ -106,6 +106,64 @@ Decisión para el motor: el Modo Inversor mostrará datos, no recomendaciones. N
 Cap Rate se utiliza cuando queremos comparar propiedades de forma rapida, saber si el precio de venta es justo, analizar el activo puro
 ROI se utiliza si queremos ver la realidad de tu billetera, evaluar tu estrategia de financiamiento, comparar con otros negocios
 
+### 1.6 Métricas consideradas para v2
+
+Durante el estudio del dominio identifiqué dos métricas adicionales que 
+son estándar en evaluación de inversiones inmobiliarias profesionales 
+pero que decidí excluir de v1 por costo de implementación.
+
+**TIR (Tasa Interna de Retorno)**
+
+Es la rentabilidad promedio anual que genera el dinero que realmente permanece invertido en un proyecto, 
+tomando en cuenta cuándo se cobra y cuándo se paga cada peso
+
+Sirve para evaluar proyectos, te dice si una inversión es rentable 
+(si su porcentaje supera lo que te cuesta pedir un préstamo o lo que ganarías en un banco).
+También sirve para comparar alternativas, permite enfrentar proyectos totalmente distintos 
+(por ejemplo, comprar un departamento versus comprar un bono) y saber cuál te dará más ganancias reales.
+
+La TIR soluciona los problemas y limitaciones matemáticas que tienen el Cap rate y el ROI. 
+Un inversor experimentado la prefiere por tres razones principales:
+- Considera el factor tiempo (El dinero vale distinto): El ROI y el Cap rate tratan a todos los pesos por igual, 
+sin importar cuándo ingresan. La TIR entiende que un peso ganado hoy vale más que un peso ganado dentro de 5 años.
+- Considera todos los momentos de la inversión: El ROI te da una foto de la ganancia total, pero no te dice 
+cuándo recuperaste tu capital inicial. La TIR calcula la rentabilidad teniendo en cuenta toda la "película": 
+cuándo pusiste el dinero, cuánto recibes cada año y qué pasa al vender el activo (incluyendo la plusvalía).
+- Mide el ciclo completo y permite comparar escenarios dispares: El Cap rate es un cálculo estático que solo mira 
+el ingreso de un año asumiendo que se compró en efectivo, ignorando el paso de los años, las reformas o la venta final. 
+La TIR mide todo el ciclo de vida de la inversión.
+
+Por qué no entra en v1: requiere modelar flujo de caja período por 
+período durante el horizonte completo de la inversión, y resolverse 
+iterativamente (no tiene fórmula cerrada). Multiplica la complejidad 
+del motor por 2-3×.
+
+**VAN (Valor Actual Neto)**
+
+Es un indicador que calcula cuánto dinero "de hoy" ganarás o perderás al realizar una inversión. 
+
+Sirve para evaluar si un proyecto es viable y crea riqueza real (VAN positivo). 
+Trae al presente todos los flujos de dinero futuros descontando el efecto del tiempo y el costo de oportunidad.
+
+El Cap Rate mide la rentabilidad anual de una propiedad operando al contado. Sin embargo, el inversor usa el VAN 
+para tener una visión estratégica más profunda:
+- Valor del dinero en el tiempo: El Cap Rate trata a todos los flujos iguales, mientras que el VAN 
+reconoce que $1.000 generados hoy valen más que $1.000 generados dentro de 10 años.
+- Costo de endeudamiento: El VAN permite incorporar el costo de pedir dinero prestado y los impuestos, 
+dando una cifra monetaria exacta de ganancia por encima de tus expectativas mínimas.
+- Plazos largos: El Cap Rate es una "fotografía" estática a un año. El VAN es una "película" que considera 
+toda la vida útil de la inversión, incluyendo costos de renovación futuros y el valor de venta final del activo.
+
+Mientras el Cap Rate ayuda a comparar rápidamente el rendimiento operativo de propiedades en el mercado, 
+el VAN determina en números exactos si toda la operación incrementará tu patrimonio.
+
+Por qué no entra en v1: requiere proyectar flujos completos y elegir 
+una tasa de descuento defendible (decisión no trivial en contexto 
+argentino con tasas reales volátiles).
+
+**Decisión:** ambas métricas quedan registradas en `scope.md` sección 
+"v2 candidates" para evaluación al cierre del v1.
+
 
 ## 2. Contexto argentino
 
@@ -356,3 +414,106 @@ Eso explica matemáticamente la tabla: el cambio del ROI con crédito es
 - La decisión de apalancarse depende crucialmente de la apreciación 
   esperada: con apreciación baja, el crédito destruye valor; con 
   apreciación alta, lo multiplica
+
+
+## 3. Escenarios del motor
+
+[Sección a completar durante Día 3 del curriculum de Fase 1.]
+
+### 3.1 Por qué tres escenarios y no un único número
+
+[Por completar: justificación del approach Conservador / Moderado / Agresivo.]
+
+### 3.2 Variables que varían entre escenarios
+
+[Por completar: cuáles variables se mueven entre escenarios y cuáles 
+se mantienen constantes. Referencia a tabla 2.5.]
+
+### 3.3 Estructura del motor de cálculo
+
+[Por completar: cómo se compone el output del motor — cap rate base, 
+tres escenarios paralelos, comparación con barrio, sensibilidad.]
+
+### 3.4 Test de auto-validación del dominio
+
+[Por completar al cierre de Día 4: tres explicaciones a alguien sin 
+background financiero (cap rate, escenarios, por qué el crédito 
+amplifica). Si pasa el test, dominio listo para Fase 2.]
+
+## 4. Validación externa
+
+### 4.1 Conversación con corredor matriculado
+
+**Estado:** Pendiente. Llamada agendada para [fecha cuando la consigas], 
+previo al cierre de Día 4 del curriculum de Fase 1.
+
+**Objetivos de la validación:**
+
+- Confirmar fórmula de cap rate neto usada en el mercado real argentino
+- Validar qué gastos se descuentan típicamente del NOI (más allá de 
+  expensas y ABL)
+- Confirmar rango de vacancia esperada por barrio (foco en los 8 barrios 
+  del dataset semilla)
+- Validar tasa de apreciación esperada en USD para Belgrano y barrios 
+  premium vs barrios de mayor rentabilidad
+- Validar la simplificación del UVA descrita en 2.4.1 (modelarlo como 
+  crédito en USD a 8% TNA)
+- Identificar métricas o ajustes de modelado que el motor v1 no contempla 
+  y debería contemplar
+
+### 4.2 Cambios aplicados post-validación
+
+[Sección a completar después de la llamada. Cada cambio en supuestos 
+default, fórmulas, o convenciones debe registrarse aquí con: qué se 
+modificó, por qué, y referencia a la conversación.]
+
+### 4.3 Disclaimers sugeridos para el producto final
+
+[Sección a completar después de la llamada. Cualquier advertencia que 
+el corredor sugiera incluir en la UI del Modo Inversor para usuarios 
+finales — típicamente del estilo "estimaciones basadas en datos públicos, 
+no constituyen asesoramiento financiero".]
+
+
+## 5. Referencias
+
+### Fuentes de datos cuantitativos
+
+- **INDEC · Índice de Precios al Consumidor (IPC)** — serie histórica utilizada para proyecciones de inflación.
+  - [Portal del INDEC](https://www.indec.gob.ar/indec/web/Nivel4-Tema-3-5-31)
+  - [Serie histórica en Excel](https://www.indec.gob.ar/ftp/cuadros/economia/sh_ipc_05_26.xls)
+  - [Serie histórica en CSV](https://www.indec.gob.ar/ftp/cuadros/economia/serie_ipc_divisiones.csv)
+
+- **BCRA · Índice de Contratos de Locación (ICL)** — serie diaria utilizada como proxy de ajuste real de alquileres.
+  - [Serie del ICL](https://www.bcra.gob.ar/principales-variables-datos/?serie=7988)
+  - [Portal de estadísticas e indicadores del BCRA](https://www.bcra.gob.ar/estadisticas-indicadores/)
+
+- **Zonaprop · Reporte de mercado CABA abril 2026** — fuente de cap rate por barrio, vacancia promedio y apreciación interanual del USD/m².
+  - [Rentabilidad CABA](https://www.zonaprop.com.ar/blog/zpindex/caba-rentabilidad/)
+  - [Índice general · venta, alquiler y rentabilidad por región](https://www.zonaprop.com.ar/blog/zpindex/)
+  - [Índice de alquiler CABA](https://www.zonaprop.com.ar/blog/zpindex/caba-alquiler/)
+
+- **Reporte Inmobiliario · informes trimestrales 2025-2026** — fuente de USD/m² histórico por barrio.
+  - [Portal de Reporte Inmobiliario](https://www.reporteinmobiliario.com)
+
+- **La Nación · cobertura de mercado inmobiliario 2026** — validación cruzada de cap rates por barrio.
+  - [Rentabilidad de alquileres en CABA · 24/05/2026](https://www.lanacion.com.ar/propiedades/inversiones/rentabilidad-de-alquileres-en-caba-cuales-son-los-barrios-que-mas-pagan-nid24052026/)
+  - [Claves para entender al nuevo mercado inmobiliario · 12/05/2026](https://www.lanacion.com.ar/propiedades/casas-y-departamentos/claves-para-entender-al-nuevo-mercado-inmobiliario-los-precios-no-despegan-y-comprar-para-alquilar-nid05052026/)
+  - [Qué tipo de departamento conviene comprar para alquilar · 25/05/2026](https://www.lanacion.com.ar/propiedades/casas-y-departamentos/que-tipo-de-departamento-conviene-comprar-para-alquilar-en-mayo-2026-nid25052026/)
+
+### Fuentes conceptuales
+
+- **Investopedia · Capitalization Rate (Cap Rate)** — definición canónica internacional, base para la adaptación al contexto argentino.
+  - [Cap Rate · Investopedia](https://www.investopedia.com/terms/c/capitalizationrate.asp)
+
+- **Paridad de Poder Adquisitivo (PPP)** — concepto formal subyacente a la fórmula 2.1.1.
+  - [Purchasing Power Parity · Investopedia](https://www.investopedia.com/terms/p/purchasingpowerparity.asp)
+
+### Marco regulatorio
+
+- **DNU 70/2023** — modifica la Ley de Alquileres 27.551, libera la elección de índices y moneda.
+  - [Texto del DNU · Boletín Oficial](https://www.boletinoficial.gob.ar/detalleAviso/primera/300484/20231220)
+  - [Texto del DNU · InfoLeg](https://www.infoleg.gob.ar/infolegInternet/anexos/390000-394999/392360/norma.htm)
+
+- **Ley 27.551** (derogada parcialmente por el DNU 70/2023) — marco previo.
+  - [Texto de la Ley · InfoLeg](https://www.infoleg.gob.ar/infolegInternet/anexos/335000-339999/338741/norma.htm)
