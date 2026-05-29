@@ -55,4 +55,4 @@ Instrucciones a publicar en Fase 2 cuando exista código ejecutable.
 
 ## Sobre el autor
 
-Iván Dujaut · Product Engineer · [[tu LinkedIn](https://www.linkedin.com/in/ivan-dujaut/)] · dujautivan@gmail.com
+Iván Dujaut · Product Engineer · [[LinkedIn](https://www.linkedin.com/in/ivan-dujaut/)] · dujautivan@gmail.com
