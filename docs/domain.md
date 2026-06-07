@@ -217,7 +217,7 @@ Esto significa que, si la inflación supera a los salarios, el ICL queda por deb
 
 Impacto del DNU 70/2023: Con la entrada en vigencia del DNU 70/2023, el uso del ICL dejó de ser obligatorio para los contratos de alquiler, permitiendo a las partes pactar libremente cualquier índice (o moneda) de ajuste.
 
-Para el motor v1, usamos ICL como proxy del ajuste real del alquiler porque es el dato público con mayor cobertura histórica.
+Para el motor v1, utilicé ICL como proxy del ajuste real del alquiler porque es el dato público con mayor cobertura histórica.
 
 ### 2.3 Vacancia típica en CABA
 
@@ -256,8 +256,7 @@ La cuota de un crédito de capital P, a tasa r por período, durante n períodos
 
 Esta ecuación surge de igualar el capital prestado (\(P\)) con el valor presente de todas las cuotas futuras descontadas a la tasa de interés (\(r\)). Al agrupar estos pagos, se forma una serie geométrica finita cuya sumatoria resulta en la fórmula mencionada. Es el estándar en hipotecas, incluidos los créditos UVA.
 
-Convención de tasa: el sistema financiero argentino publica TNA (Tasa 
-Nominal Anual). Para convertir a tasa mensual usamos división simple:
+Convención de tasa: el sistema financiero argentino publica TNA ). Para convertir a tasa mensual usamos división simple:
     r_mensual = TNA / 12
 
 Casos de borde para testing:
@@ -422,17 +421,139 @@ Eso explica matemáticamente la tabla: el cambio del ROI con crédito es
 
 ### 3.1 Por qué tres escenarios y no un único número
 
-[Por completar: justificación del approach Conservador / Moderado / Agresivo.]
+Elegi 3 escenarios porque calcular cap rate con un solo numero da una falsa sensacion de precisión que el contexto
+argentino (con volatilidad macro alta) no soporta. Mostrar un rango comunica honestamente la incertidumbre del modelo.
+
+Ahora bien, elegí 3 en lugar de más porque 3 son los puntos mínimos para definir un rango con un centro 
+(peor caso, caso base, mejor caso). Aumentar a 5 o 7 agrega mas detalle pero introduce categorías intermedias difíciles de comunicar, 
+me obliga a definir, por ejemplo, "moderadamente conservador" y "moderadamente agresivo", que son categorías difíciles de 
+describir con palabras claras y de comunicar a un usuario. Entonces con 3 no tengo redundancia en la clasificación.
+
+Estos 3 escenarios me refiero a que los mismos clasifican supuestos macros sobre el futuro, no
+son atributos del activo ni perfiles de inversión, este último lo podríamos a agregar a una V2 pero como un eje independiente
+
 
 ### 3.2 Variables que varían entre escenarios
 
-[Por completar: cuáles variables se mueven entre escenarios y cuáles 
-se mantienen constantes. Referencia a tabla 2.5.]
+Las variables que se mueven entre escenario son:
+- Vacancia
+- Inflación
+- Devaluación
+- Apreciación del barrio
+
+Si bien tanto las que varían como las que no dependen de la macro, la diferencia es que las que varían 
+entre escenarios son proyecciones sobre el futuro, mientras que las que no varían son los inputs del análisis: 
+qué se está evaluando. El precio de la propiedad, por ejemplo, también es sensible a la macro, pero cambiarlo 
+entre escenarios cambiaría la pregunta del análisis: ya no estaríamos evaluando esta propiedad a este precio, 
+estaríamos evaluando una propiedad distinta. Lo mismo aplica a expensas, m² y alquiler inicial: son datos 
+del activo en el momento de evaluación. Los escenarios proyectan el futuro a partir de esos inputs fijos.
+
+Estas variables no son independientes: cuando el peso se devalúa, los costos de construcción y el valor 
+de las propiedades varían, lo que empuja hacia arriba la inflación general y altera la vacancia ya que 
+menos personas pueden acceder a la compra, volcándose al mercado de alquileres.
+
+Ahora vamos a justificar variable por variable los valores de la tabla 2.5, empezando por Vacancia. Actualmente no existe estadistica publica sobre este dato 
+en CABA. Ninguna de las fuentes publica el tiempo promedio entre que se deshabita un inmueble hasta que se vuelva a habitar. De hecho, Zonaprop asume 0% de vacancia. 
+El rango de "1-2 meses" que circula entre brokers es mas convención de mercado que dato medido.
+
+Por lo tanto, ante la ausencia de un dato confiable, construí el rango de vacancia del motor por triangulación a partir de datos de ofertas que sí existen:
+
+- Conservador (2 meses): es el peor caso real donde las expectativas del inversor no se cumplen, es un escenario prudente. Para este escenario, 
+el motor se configura con 2 meses como techo viniendo del rango que manejan los brokers (1-2) y porque un 16.6% de pérdida es malo pero realista. Al mismo 
+se llega cuando hay un desacople entre alquileres e ingreso y las personas no pueden alquilar en determinados lugares.
+- Moderado (1 mes): para este escenario, el motor se configura con 1 mes bajo la información que manejan los brokers ademas porque un 8.33% de pérdida lo califico como una pérdida moderada. Si bien la oferta de alquileres triplicó el piso desde 2023, la demanda sigue solida, por lo que la diferencia entre alquileres e ingresos no es critica y el mercado se sigue absorbiendo con dicha demanda. 
+Cuando el inversor recien entra se muestra con el valor 1 porque es el valor por default, el valor base, de hecho es lo que usualmente busca primero: lo mas probable
+- Agresivo (0.5 meses): es el mejor caso real. En este caso tenemos una pérdida del 4.16% donde el motor se configura con 0.5 meses basado en la información de piso de oferta de 2023 y porque suponer un 0 supone un 0% de pérdida que es un caso ideal y nosotros buscamos acercarnos a la realidad. Siempre hay una fricción mínima aunque nos encontremos en el mejor mercado posible y se da simplemente por los tiempos burocráticos de cualquier mudanza. Por otro lado, este escenario ocurre cuando hay una demanda superior a la oferta posiblemente vinculado a que las propiedades se colocan rapido porque hay muchos buscadores comparados con lo que se ofrece
+
+Limitación: estos valores son supuestos del modelo basados en triangulación, no en medición directa. Es por eso que la validación con corredor matriculado (sección 4) será especialmente importante para ajustar este rango si los datos cualitativos del campo lo sugieren.
+
+Nota sobre los límites del modelo: la vacancia podría escalar más allá de 2 meses en escenarios de crisis sistémica — una devaluación abrupta del peso, por ejemplo, generaría una inflación descontrolada y aumentaría la oferta de inmuebles sin alquilar al mercado. Estos casos quedan fuera del scope porque
 
 ### 3.3 Estructura del motor de cálculo
 
-[Por completar: cómo se compone el output del motor — cap rate base, 
-tres escenarios paralelos, comparación con barrio, sensibilidad.]
+El motor recibe los datos de una propiedad y supuestos macro, y devuelve métricas financieras calculadas en paralelo para los tres escenarios (Conservador, Moderado, Agresivo). El cap rate es siempre del activo (igual en los tres escenarios si los inputs operativos no cambian); el ROI varía según escenario porque depende de los supuestos macro y del apalancamiento.
+
+#### 3.3.1 Inputs del caller
+
+**Datos del activo (siempre requeridos)**
+
+| Campo                       | Tipo   | Descripción                                        | Ejemplo |
+|-----------------------------|--------|----------------------------------------------------|---------|
+| `precioCompraUSD`           | number | Precio de venta de la propiedad                    | 180000  |
+| `alquilerMensualInicialUSD` | number | Alquiler mensual estimado al momento de evaluación | 600     |
+| `expensasMensualesUSD`      | number | Expensas mensuales del consorcio                   | 80      |
+| `ablTrimestralUSD`          | number | ABL trimestral                                     | 90      |
+
+**Datos del barrio (siempre requeridos)**
+
+| Campo                  | Tipo   | Descripción                     | Ejemplo |
+|------------------------|--------|---------------------------------|---------|
+| `medianaCapRateBarrio` | number | Cap rate mediano del barrio (%) | 4.8     |
+
+**Datos del crédito (opcional, solo con apalancamiento)**
+
+| Campo               | Tipo   | Descripción                                 | Ejemplo |
+|---------------------|--------|---------------------------------------------|---------|
+| `capitalPropioUSD`  | number | Capital que el inversor pone de su bolsillo | 54000   |
+| `creditoPlazoMeses` | number | Plazo del crédito en meses                  | 240     |
+| `creditoTnaAnual`   | number | Tasa Nominal Anual del crédito              | 0.08    |
+
+**Supuestos macro por escenario (opcional, usa defaults de §2.5 si se omiten)**
+
+| Campo                    | Tipo   | Conservador | Moderado | Agresivo |
+|--------------------------|--------|-------------|----------|----------|
+| `vacanciaMeses`          | number | 2           | 1        | 0.5      |
+| `inflacionAnual`         | number | 0.35        | 0.30     | 0.25     |
+| `devaluacionAnual`       | number | 0.30        | 0.25     | 0.20     |
+| `ajusteAlquilerAnual`    | number | 0.32        | 0.28     | 0.24     |
+| `apreciacionBarrioAnual` | number | -0.02       | 0.022    | 0.05     |
+
+**Meta**
+
+| Campo            | Tipo   | Descripción                     | Ejemplo |
+|------------------|--------|---------------------------------|---------|
+| `horizonteAnios` | number | Horizonte de proyección (v1: 1) | 1       |
+
+#### 3.3.2 Outputs del motor
+
+El motor devuelve un objeto con tres escenarios en paralelo. Cada escenario contiene las mismas métricas, calculadas con sus propios supuestos macro.
+
+**Por cada escenario (Conservador / Moderado / Agresivo)**
+
+| Campo                         | Tipo   | Descripción                                                  | Cálculo / Referencia               |
+|-------------------------------|--------|--------------------------------------------------------------|------------------------------------|
+| `alquilerUSDFinalAnio1`       | number | Alquiler proyectado al cierre del año 1                      | U₀ × (1+i)/(1+d) (§2.1.1)          |
+| `alquilerPromedioMensualUSD`  | number | Alquiler promedio del año (término medio)                    | (U₀ + U₁) / 2 (§2.6)               |
+| `ingresoAnualBrutoUSD`        | number | Ingreso anual sin descuento de vacancia                      | promedio × 12                      |
+| `ingresoAnualNetoVacanciaUSD` | number | Ingreso anual descontando vacancia                           | promedio × (12 − vacancia)         |
+| `expensasAnualesUSD`          | number | Expensas anualizadas                                         | expensas × 12                      |
+| `ablAnualUSD`                 | number | ABL anualizado                                               | abl × 4                            |
+| `gastosOperativosTotalesUSD`  | number | Suma de expensas y ABL anuales                               | expensas anuales + ABL anual       |
+| `noiUSD`                      | number | Net Operating Income                                         | ingresos netos − gastos operativos |
+| `capRateBruto`                | number | Cap rate sobre ingreso bruto                                 | bruto / precio (§1.1)              |
+| `capRateNeto`                 | number | Cap rate sobre NOI                                           | NOI / precio (§1.1)                |
+| `apreciacionActivoUSD`        | number | Ganancia por apreciación del activo                          | precio × tasaApreciacion (§2.7)    |
+| `diferencialVsMedianaBarrio`  | number | Diferencia entre capRateNeto y mediana del barrio (puntos %) | capRateNeto − medianaCapRateBarrio |
+| `posicionVsMediana`           | enum   | Posición vs mediana del barrio                               | `ABOVE`, `AT`, `BELOW`             |
+
+**Outputs adicionales cuando hay crédito (anidados dentro de cada escenario)**
+
+| Campo                    | Tipo   | Descripción                           | Cálculo / Referencia          |
+|--------------------------|--------|---------------------------------------|-------------------------------|
+| `cuotaMensualCreditoUSD` | number | Cuota mensual del crédito             | Fórmula francés (§2.4.2)      |
+| `cuotaAnualCreditoUSD`   | number | Cuota anualizada                      | mensual × 12                  |
+| `flujoCajaNetoAnualUSD`  | number | Flujo de caja después de cuota        | NOI − cuota anual             |
+| `gananciaTotalAnualUSD`  | number | Ganancia total del año                | flujo + apreciación           |
+| `roiInversorAnual`       | number | ROI del inversor sobre capital propio | ganancia / capitalPropio      |
+| `leverageRatio`          | number | Ratio de apalancamiento               | precio / capitalPropio (§2.7) |
+
+#### 3.3.3 Decisiones de contrato
+
+- **Expensas y ABL como inputs separados**: el motor los anualiza con reglas distintas (expensas × 12 porque son mensuales, ABL × 4 porque es trimestral) y los suma internamente. No se reciben pre-sumados para mantener la trazabilidad del cálculo.
+- **Supuestos macro opcionales con defaults**: si el caller no pasa los supuestos, el motor usa los defaults de la tabla §2.5. Si se pasan, el caller debe enviar el set completo de las cinco variables por escenario.
+- **Crédito opcional**: si el caller no pasa los datos del crédito (`capitalPropioUSD`, `creditoPlazoMeses`, `creditoTnaAnual`), los campos relacionados (cuota, flujo, ROI, leverage) no se incluyen en el output. El `capRateNeto` no cambia con o sin crédito porque mide el rendimiento del activo, no del inversor.
+- **Output estructurado por escenario**: el motor no devuelve un único número, devuelve las métricas calculadas para los tres escenarios en paralelo (ver §3.1). El cliente decide cuál mostrar primero (por default el Moderado, ver §3.2 Vacancia).
+- **Cap rate del barrio como input**: en v1, el cap rate mediano del barrio se pasa como input al motor. En v2, el motor podría calcularlo internamente consultando una tabla de comparables del barrio.
 
 ### 3.4 Test de auto-validación del dominio
 
