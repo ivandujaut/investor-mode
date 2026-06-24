@@ -309,29 +309,29 @@ La convención de término medio balancea ambos extremos.
 - Devaluación peso vs USD: 25% anual
 - Ajuste alquiler (ICL proxy): 28% anual
 
-**Paso 1 — Alquiler en USD al final del año 1:**
+**Paso 1. Alquiler en USD al final del año 1:**
     600 × (1+0,28) / (1+0,25) = 614,4 USD
 
-**Paso 2 — Alquiler promedio del año (término medio):**
+**Paso 2. Alquiler promedio del año (término medio):**
     (600 + 614,4) / 2 = 607,2 USD/mes
 
-**Paso 3 — Ingresos anuales (descontando 1 mes de vacancia):**
+**Paso 3. Ingresos anuales (descontando 1 mes de vacancia):**
     607,2 × 11 = 6.679,2 USD
 
-**Paso 4 — Gastos operativos anuales:**
+**Paso 4. Gastos operativos anuales:**
     Expensas: 80 × 12 = 960
     ABL: 90 × 4 = 360
     Total: 1.320 USD
 
-**Paso 5 — NOI:**
+**Paso 5. NOI:**
     NOI = 6.679,2 - 1.320 = 5.359,2 USD
 
-**Paso 6 — Cap rate neto:**
+**Paso 6. Cap rate neto:**
     5.359,2 / 180.000 = 2,98%
 
 **Reflexión:**
 El cap rate subió ~0,05 puntos en un año, porque el ajuste de alquiler (28%) superó a la devaluación (25%). 
-Si el escenario fuera distinto — por ejemplo, devaluación 35% e inflación 30% —, el cap rate en USD habría caído, aunque el alquiler haya "subido" en pesos.
+Si el escenario fuera distinto (por ejemplo, devaluación 35% e inflación 30%), el cap rate en USD habría caído, aunque el alquiler haya "subido" en pesos.
 Esto es exactamente el insight que el motor tiene que comunicar al usuario. 
 Y es lo que diferencia al Modo Inversor de cualquier calculadora simple: no calcula cap rate hoy, calcula cap rate proyectado en distintos contextos macro.
 
@@ -343,7 +343,7 @@ Y es lo que diferencia al Modo Inversor de cualquier calculadora simple: no calc
 - Plazo: 20 años (240 meses)
 - TNA: 8%
 
-**Paso 1 — Cuota del crédito:**
+**Paso 1. Cuota del crédito:**
 
     r_mensual = 0,08 / 12 = 0,006667
     n = 240 meses
@@ -353,7 +353,7 @@ Y es lo que diferencia al Modo Inversor de cualquier calculadora simple: no calc
     
     Cuota anual = 1.054 × 12 ≈ 12.647 USD/año
 
-**Paso 2 — Flujo de caja operativo del año:**
+**Paso 2. Flujo de caja operativo del año:**
 
     Ingresos (del Caso D): 6.679,2
     Gastos operativos: -1.320
@@ -361,10 +361,10 @@ Y es lo que diferencia al Modo Inversor de cualquier calculadora simple: no calc
     Flujo de caja neto: -7.288 USD
 
 El flujo de caja operativo te da negativo. O sea, lo que cobrás de alquiler no alcanza para cubrir gastos + cuota del crédito.
-Eso no es un error de tu cálculo. Es la realidad de comprar con crédito en Argentina: el alquiler rara vez cubre la cuota hipotecaria. 
+Eso no es un error de cálculo. Es la realidad de comprar con crédito en Argentina: el alquiler rara vez cubre la cuota hipotecaria. 
 El inversor apalancado pone plata de su bolsillo cada mes apostando a que la apreciación del activo compense.
 
-**Paso 3 — Apreciación del activo:**
+**Paso 3. Apreciación del activo:**
 
     180.000 × 2,2% = 3.960 USD
 
@@ -372,11 +372,11 @@ Importante: la apreciación es sobre el activo completo (180.000), no sobre
 el aporte del inversor (54.000). El inversor controla todo el activo 
 aunque solo puso una parte. Eso es el efecto del apalancamiento.
 
-**Paso 4 — Ganancia total del año:**
+**Paso 4. Ganancia total del año:**
 
     -7.288 + 3.960 = -3.328 USD
 
-**Paso 5 — ROI del inversor:**
+**Paso 5. ROI del inversor:**
 
     -3.328 / 54.000 = -6,16%
 
@@ -467,7 +467,7 @@ Cuando el inversor recien entra se muestra con el valor 1 porque es el valor por
 
 Limitación: estos valores son supuestos del modelo basados en triangulación, no en medición directa. Es por eso que la validación con corredor matriculado (sección 4) será especialmente importante para ajustar este rango si los datos cualitativos del campo lo sugieren.
 
-Nota sobre los límites del modelo: la vacancia podría escalar más allá de 2 meses en escenarios de crisis sistémica — una devaluación abrupta del peso, por ejemplo, generaría una inflación descontrolada y aumentaría la oferta de inmuebles sin alquilar al mercado. Estos casos quedan fuera del scope porque
+Nota sobre los límites del modelo: la vacancia podría escalar más allá de 2 meses en escenarios de crisis sistémica: una devaluación abrupta del peso, por ejemplo, generaría una inflación descontrolada y aumentaría la oferta de inmuebles sin alquilar al mercado. Estos casos quedan fuera del scope porque
 
 ### 3.3 Estructura del motor de cálculo
 
@@ -475,44 +475,75 @@ El motor recibe los datos de una propiedad y supuestos macro, y devuelve métric
 
 #### 3.3.1 Inputs del caller
 
-**Datos del activo (siempre requeridos)**
+> **Convención de nombres del contrato.** Los nombres de campo siguen la convención del
+> código (`src/engine/types.ts`): conceptos financieros universales en inglés
+> (`purchasePriceUSD`, `monthlyRentUSD`), términos propios de Argentina sin traducir
+> (`expensasMonthlyUSD`, `ablQuarterlyUSD`). Las tasas anuales usan el sufijo `Annual`.
+> Todos los cap rates son **ratios decimales** (0.048 = 4,8 %); el ×100 para mostrar se hace en la UI.
 
-| Campo                       | Tipo   | Descripción                                        | Ejemplo |
-|-----------------------------|--------|----------------------------------------------------|---------|
-| `precioCompraUSD`           | number | Precio de venta de la propiedad                    | 180000  |
-| `alquilerMensualInicialUSD` | number | Alquiler mensual estimado al momento de evaluación | 600     |
-| `expensasMensualesUSD`      | number | Expensas mensuales del consorcio                   | 80      |
-| `ablTrimestralUSD`          | number | ABL trimestral                                     | 90      |
+El motor tiene un único punto de entrada, `analyzeProperty(input: EngineInput)`, que agrupa los
+inputs en cuatro bloques (no son campos planos):
 
-**Datos del barrio (siempre requeridos)**
+```ts
+analyzeProperty({
+  property,      // PropertyInput     - datos del activo (siempre)
+  neighborhood,  // NeighborhoodInput - datos del barrio (siempre)
+  funding,       // FundingDetails    - crédito + aporte propio (opcional)
+  scenarios,     // ScenarioInputs    - supuestos macro (opcional; defaults sección 2.5)
+})
+```
 
-| Campo                  | Tipo   | Descripción                     | Ejemplo |
-|------------------------|--------|---------------------------------|---------|
-| `medianaCapRateBarrio` | number | Cap rate mediano del barrio (%) | 4.8     |
+**Datos del activo · `property` (siempre requerido)**
 
-**Datos del crédito (opcional, solo con apalancamiento)**
+| Campo                | Tipo   | Descripción                                        | Ejemplo |
+|----------------------|--------|----------------------------------------------------|---------|
+| `purchasePriceUSD`   | number | Precio de venta de la propiedad                    | 180000  |
+| `monthlyRentUSD`     | number | Alquiler mensual estimado al momento de evaluación | 600     |
+| `expensasMonthlyUSD` | number | Expensas mensuales del consorcio (término AR)      | 80      |
+| `ablQuarterlyUSD`    | number | ABL trimestral (término AR)                        | 90      |
 
-| Campo               | Tipo   | Descripción                                 | Ejemplo |
-|---------------------|--------|---------------------------------------------|---------|
-| `capitalPropioUSD`  | number | Capital que el inversor pone de su bolsillo | 54000   |
-| `creditoPlazoMeses` | number | Plazo del crédito en meses                  | 240     |
-| `creditoTnaAnual`   | number | Tasa Nominal Anual del crédito              | 0.08    |
+La vacancia NO vive acá: es una proyección sobre el futuro que varía entre escenarios (sección 3.2),
+así que se pasa dentro de cada `scenarios.*` (ver abajo).
 
-**Supuestos macro por escenario (opcional, usa defaults de §2.5 si se omiten)**
+**Datos del barrio · `neighborhood` (siempre requerido)**
 
-| Campo                    | Tipo   | Conservador | Moderado | Agresivo |
-|--------------------------|--------|-------------|----------|----------|
-| `vacanciaMeses`          | number | 2           | 1        | 0.5      |
-| `inflacionAnual`         | number | 0.35        | 0.30     | 0.25     |
-| `devaluacionAnual`       | number | 0.30        | 0.25     | 0.20     |
-| `ajusteAlquilerAnual`    | number | 0.32        | 0.28     | 0.24     |
-| `apreciacionBarrioAnual` | number | -0.02       | 0.022    | 0.05     |
+| Campo           | Tipo   | Descripción                                 | Ejemplo |
+|-----------------|--------|---------------------------------------------|---------|
+| `medianCapRate` | number | Cap rate mediano del barrio (ratio decimal) | 0.048   |
+
+**Datos del crédito · `funding` (opcional, solo con apalancamiento)**
+
+El crédito se anida en `funding.loan`; el aporte propio cuelga directo de `funding`:
+
+| Campo                            | Tipo   | Descripción                                   | Ejemplo |
+|----------------------------------|--------|-----------------------------------------------|---------|
+| `funding.loan.principalUSD`      | number | Capital prestado (P en la fórmula, sec. 2.4.2)| 126000  |
+| `funding.loan.nominalRateAnnual` | number | Tasa Nominal Anual del crédito (TNA), decimal | 0.08    |
+| `funding.loan.termMonths`        | number | Plazo del crédito en meses                    | 240     |
+| `funding.downPaymentUSD`         | number | Capital propio que pone el inversor (entrega) | 54000   |
+
+**Supuestos macro por escenario · `scenarios` (opcional, usa defaults de sección 2.5 si se omite)**
+
+`scenarios` es un objeto con tres claves (`conservative`, `moderate`, `aggressive`); cada una es
+un `MacroAssumptions` con estos campos:
+
+| Campo                            | Tipo   | Conservador | Moderado | Agresivo |
+|----------------------------------|--------|-------------|----------|----------|
+| `vacancyMonths`                  | number | 2           | 1        | 0.5      |
+| `rentAdjustmentAnnual`           | number | 0.32        | 0.28     | 0.24     |
+| `devaluationAnnual`              | number | 0.30        | 0.25     | 0.20     |
+| `neighborhoodAppreciationAnnual` | number | -0.02       | 0.022    | 0.05     |
+
+> **`inflationAnnual` no es input del motor v1.** La tabla de sección 2.5 la lista, pero ningún
+> cálculo de v1 la consume: el ajuste del alquiler usa `rentAdjustmentAnnual` (proxy ICL)
+> directamente. Por eso `MacroAssumptions` no la incluye. Entraría en v2 si se modela la cuota UVA
+> en pesos (sección 2.4.1).
 
 **Meta**
 
-| Campo            | Tipo   | Descripción                     | Ejemplo |
-|------------------|--------|---------------------------------|---------|
-| `horizonteAnios` | number | Horizonte de proyección (v1: 1) | 1       |
+> **`horizonYears` no es input del motor v1.** El horizonte está fijo en 1 año (toda la proyección
+> es anual), así que `EngineInput` no expone el campo todavía. Se agregará cuando v2 soporte
+> horizontes multi-año (requisito de TIR/VAN, sección 1.6).
 
 #### 3.3.2 Outputs del motor
 
@@ -520,40 +551,41 @@ El motor devuelve un objeto con tres escenarios en paralelo. Cada escenario cont
 
 **Por cada escenario (Conservador / Moderado / Agresivo)**
 
-| Campo                         | Tipo   | Descripción                                                  | Cálculo / Referencia               |
-|-------------------------------|--------|--------------------------------------------------------------|------------------------------------|
-| `alquilerUSDFinalAnio1`       | number | Alquiler proyectado al cierre del año 1                      | U₀ × (1+i)/(1+d) (§2.1.1)          |
-| `alquilerPromedioMensualUSD`  | number | Alquiler promedio del año (término medio)                    | (U₀ + U₁) / 2 (§2.6)               |
-| `ingresoAnualBrutoUSD`        | number | Ingreso anual sin descuento de vacancia                      | promedio × 12                      |
-| `ingresoAnualNetoVacanciaUSD` | number | Ingreso anual descontando vacancia                           | promedio × (12 − vacancia)         |
-| `expensasAnualesUSD`          | number | Expensas anualizadas                                         | expensas × 12                      |
-| `ablAnualUSD`                 | number | ABL anualizado                                               | abl × 4                            |
-| `gastosOperativosTotalesUSD`  | number | Suma de expensas y ABL anuales                               | expensas anuales + ABL anual       |
-| `noiUSD`                      | number | Net Operating Income                                         | ingresos netos − gastos operativos |
-| `capRateBruto`                | number | Cap rate sobre ingreso bruto                                 | bruto / precio (§1.1)              |
-| `capRateNeto`                 | number | Cap rate sobre NOI                                           | NOI / precio (§1.1)                |
-| `apreciacionActivoUSD`        | number | Ganancia por apreciación del activo                          | precio × tasaApreciacion (§2.7)    |
-| `diferencialVsMedianaBarrio`  | number | Diferencia entre capRateNeto y mediana del barrio (puntos %) | capRateNeto − medianaCapRateBarrio |
-| `posicionVsMediana`           | enum   | Posición vs mediana del barrio                               | `ABOVE`, `AT`, `BELOW`             |
+| Campo                        | Tipo   | Descripción                                                  | Cálculo / Referencia                       |
+|------------------------------|--------|--------------------------------------------------------------|--------------------------------------------|
+| `rentUSDEndOfYear1`          | number | Alquiler proyectado al cierre del año 1                      | U₀ × (1+i)/(1+d) (sección 2.1.1)                  |
+| `averageMonthlyRentUSD`      | number | Alquiler promedio del año (término medio)                    | (U₀ + U₁) / 2 (sección 2.6)                       |
+| `grossAnnualIncomeUSD`       | number | Ingreso anual sin descuento de vacancia                      | promedio × 12                              |
+| `effectiveAnnualIncomeUSD`   | number | Ingreso anual descontando vacancia                           | promedio × (12 − vacancia)                 |
+| `expensasAnnualUSD`          | number | Expensas anualizadas (término AR)                            | expensas × 12                              |
+| `ablAnnualUSD`               | number | ABL anualizado (término AR)                                  | abl × 4                                    |
+| `totalOperatingExpensesUSD`  | number | Suma de expensas y ABL anuales                               | expensas anuales + ABL anual               |
+| `noiUSD`                     | number | Net Operating Income                                         | ingresos netos − gastos operativos         |
+| `grossCapRate`               | number | Cap rate sobre ingreso bruto (ratio decimal)                 | bruto / precio (sección 1.1)                      |
+| `netCapRate`                 | number | Cap rate sobre NOI (ratio decimal)                           | NOI / precio (sección 1.1)                        |
+| `assetAppreciationUSD`       | number | Ganancia por apreciación del activo                          | precio × tasaApreciacion (sección 2.7)            |
+| `spreadVsNeighborhoodMedian` | number | Diferencia entre `netCapRate` y mediana (ratio; ×100 = pts %)| netCapRate − neighborhoodMedianCapRate     |
+| `positionVsMedian`           | enum   | Posición vs mediana del barrio                               | `ABOVE`, `AT`, `BELOW`                     |
 
 **Outputs adicionales cuando hay crédito (anidados dentro de cada escenario)**
 
-| Campo                    | Tipo   | Descripción                           | Cálculo / Referencia          |
-|--------------------------|--------|---------------------------------------|-------------------------------|
-| `cuotaMensualCreditoUSD` | number | Cuota mensual del crédito             | Fórmula francés (§2.4.2)      |
-| `cuotaAnualCreditoUSD`   | number | Cuota anualizada                      | mensual × 12                  |
-| `flujoCajaNetoAnualUSD`  | number | Flujo de caja después de cuota        | NOI − cuota anual             |
-| `gananciaTotalAnualUSD`  | number | Ganancia total del año                | flujo + apreciación           |
-| `roiInversorAnual`       | number | ROI del inversor sobre capital propio | ganancia / capitalPropio      |
-| `leverageRatio`          | number | Ratio de apalancamiento               | precio / capitalPropio (§2.7) |
+| Campo                   | Tipo   | Descripción                           | Cálculo / Referencia       |
+|-------------------------|--------|---------------------------------------|----------------------------|
+| `monthlyLoanPaymentUSD` | number | Cuota mensual del crédito             | Fórmula francés (sección 2.4.2)   |
+| `annualDebtServiceUSD`  | number | Cuota anualizada                      | mensual × 12               |
+| `netAnnualCashFlowUSD`  | number | Flujo de caja después de cuota        | NOI − cuota anual          |
+| `totalAnnualGainUSD`    | number | Ganancia total del año                | flujo + apreciación        |
+| `investorRoiAnnual`     | number | ROI del inversor sobre capital propio | ganancia / downPayment     |
+| `leverageRatio`         | number | Ratio de apalancamiento               | precio / downPayment (sección 2.7)|
 
 #### 3.3.3 Decisiones de contrato
 
 - **Expensas y ABL como inputs separados**: el motor los anualiza con reglas distintas (expensas × 12 porque son mensuales, ABL × 4 porque es trimestral) y los suma internamente. No se reciben pre-sumados para mantener la trazabilidad del cálculo.
-- **Supuestos macro opcionales con defaults**: si el caller no pasa los supuestos, el motor usa los defaults de la tabla §2.5. Si se pasan, el caller debe enviar el set completo de las cinco variables por escenario.
-- **Crédito opcional**: si el caller no pasa los datos del crédito (`capitalPropioUSD`, `creditoPlazoMeses`, `creditoTnaAnual`), los campos relacionados (cuota, flujo, ROI, leverage) no se incluyen en el output. El `capRateNeto` no cambia con o sin crédito porque mide el rendimiento del activo, no del inversor.
-- **Output estructurado por escenario**: el motor no devuelve un único número, devuelve las métricas calculadas para los tres escenarios en paralelo (ver §3.1). El cliente decide cuál mostrar primero (por default el Moderado, ver §3.2 Vacancia).
+- **Supuestos macro opcionales con defaults**: si el caller no pasa los supuestos, el motor usa los defaults de la tabla sección 2.5. Si se pasan, el caller debe enviar el set completo de las cinco variables por escenario.
+- **Crédito opcional**: si el caller no pasa los datos del crédito (`downPaymentUSD`, `termMonths`, `nominalRateAnnual`), los campos relacionados (cuota, flujo, ROI, leverage) no se incluyen en el output. El `netCapRate` no cambia con o sin crédito porque mide el rendimiento del activo, no del inversor.
+- **Output estructurado por escenario**: el motor no devuelve un único número, devuelve las métricas calculadas para los tres escenarios en paralelo (ver sección 3.1). El cliente decide cuál mostrar primero (por default el Moderado, ver sección 3.2 Vacancia).
 - **Cap rate del barrio como input**: en v1, el cap rate mediano del barrio se pasa como input al motor. En v2, el motor podría calcularlo internamente consultando una tabla de comparables del barrio.
+  - **Requerimiento de dato para la UI (v2)**: la comparación con el barrio en el Modo Inversor pasó de "dos barras desde cero" a una **línea de posición + percentil** ("rendís menos que ~7 de cada 10 del barrio"). Eso necesita que el motor exponga la **distribución del barrio**, no solo la mediana: mínimo, máximo (o rango intercuartil) y el **percentil** de esta propiedad dentro de los comparables en venta. Con solo la mediana, la UI se limita a una vista de divergencia (gap vs. mediana). Ver `docs/design.md` → capa "Comparar con el barrio".
 
 ### 3.4 Test de auto-validación del dominio
 
@@ -592,7 +624,7 @@ modificó, por qué, y referencia a la conversación.]
 
 [Sección a completar después de la llamada. Cualquier advertencia que 
 el corredor sugiera incluir en la UI del Modo Inversor para usuarios 
-finales — típicamente del estilo "estimaciones basadas en datos públicos, 
+finales, típicamente del estilo "estimaciones basadas en datos públicos, 
 no constituyen asesoramiento financiero".]
 
 
@@ -600,41 +632,41 @@ no constituyen asesoramiento financiero".]
 
 ### Fuentes de datos cuantitativos
 
-- **INDEC · Índice de Precios al Consumidor (IPC)** — serie histórica utilizada para proyecciones de inflación.
+- **INDEC · Índice de Precios al Consumidor (IPC)**: serie histórica utilizada para proyecciones de inflación.
   - [Portal del INDEC](https://www.indec.gob.ar/indec/web/Nivel4-Tema-3-5-31)
   - [Serie histórica en Excel](https://www.indec.gob.ar/ftp/cuadros/economia/sh_ipc_05_26.xls)
   - [Serie histórica en CSV](https://www.indec.gob.ar/ftp/cuadros/economia/serie_ipc_divisiones.csv)
 
-- **BCRA · Índice de Contratos de Locación (ICL)** — serie diaria utilizada como proxy de ajuste real de alquileres.
+- **BCRA · Índice de Contratos de Locación (ICL)**: serie diaria utilizada como proxy de ajuste real de alquileres.
   - [Serie del ICL](https://www.bcra.gob.ar/principales-variables-datos/?serie=7988)
   - [Portal de estadísticas e indicadores del BCRA](https://www.bcra.gob.ar/estadisticas-indicadores/)
 
-- **Zonaprop · Reporte de mercado CABA abril 2026** — fuente de cap rate por barrio, vacancia promedio y apreciación interanual del USD/m².
+- **Zonaprop · Reporte de mercado CABA abril 2026**: fuente de cap rate por barrio, vacancia promedio y apreciación interanual del USD/m².
   - [Rentabilidad CABA](https://www.zonaprop.com.ar/blog/zpindex/caba-rentabilidad/)
   - [Índice general · venta, alquiler y rentabilidad por región](https://www.zonaprop.com.ar/blog/zpindex/)
   - [Índice de alquiler CABA](https://www.zonaprop.com.ar/blog/zpindex/caba-alquiler/)
 
-- **Reporte Inmobiliario · informes trimestrales 2025-2026** — fuente de USD/m² histórico por barrio.
+- **Reporte Inmobiliario · informes trimestrales 2025-2026**: fuente de USD/m² histórico por barrio.
   - [Portal de Reporte Inmobiliario](https://www.reporteinmobiliario.com)
 
-- **La Nación · cobertura de mercado inmobiliario 2026** — validación cruzada de cap rates por barrio.
+- **La Nación · cobertura de mercado inmobiliario 2026**: validación cruzada de cap rates por barrio.
   - [Rentabilidad de alquileres en CABA · 24/05/2026](https://www.lanacion.com.ar/propiedades/inversiones/rentabilidad-de-alquileres-en-caba-cuales-son-los-barrios-que-mas-pagan-nid24052026/)
   - [Claves para entender al nuevo mercado inmobiliario · 12/05/2026](https://www.lanacion.com.ar/propiedades/casas-y-departamentos/claves-para-entender-al-nuevo-mercado-inmobiliario-los-precios-no-despegan-y-comprar-para-alquilar-nid05052026/)
   - [Qué tipo de departamento conviene comprar para alquilar · 25/05/2026](https://www.lanacion.com.ar/propiedades/casas-y-departamentos/que-tipo-de-departamento-conviene-comprar-para-alquilar-en-mayo-2026-nid25052026/)
 
 ### Fuentes conceptuales
 
-- **Investopedia · Capitalization Rate (Cap Rate)** — definición canónica internacional, base para la adaptación al contexto argentino.
+- **Investopedia · Capitalization Rate (Cap Rate)**: definición canónica internacional, base para la adaptación al contexto argentino.
   - [Cap Rate · Investopedia](https://www.investopedia.com/terms/c/capitalizationrate.asp)
 
-- **Paridad de Poder Adquisitivo (PPP)** — concepto formal subyacente a la fórmula 2.1.1.
+- **Paridad de Poder Adquisitivo (PPP)**: concepto formal subyacente a la fórmula 2.1.1.
   - [Purchasing Power Parity · Investopedia](https://www.investopedia.com/terms/p/purchasingpowerparity.asp)
 
 ### Marco regulatorio
 
-- **DNU 70/2023** — modifica la Ley de Alquileres 27.551, libera la elección de índices y moneda.
+- **DNU 70/2023**: modifica la Ley de Alquileres 27.551, libera la elección de índices y moneda.
   - [Texto del DNU · Boletín Oficial](https://www.boletinoficial.gob.ar/detalleAviso/primera/300484/20231220)
   - [Texto del DNU · InfoLeg](https://www.infoleg.gob.ar/infolegInternet/anexos/390000-394999/392360/norma.htm)
 
-- **Ley 27.551** (derogada parcialmente por el DNU 70/2023) — marco previo.
+- **Ley 27.551** (derogada parcialmente por el DNU 70/2023): marco previo.
   - [Texto de la Ley · InfoLeg](https://www.infoleg.gob.ar/infolegInternet/anexos/335000-339999/338741/norma.htm)

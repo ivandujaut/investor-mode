@@ -1,1 +1,4 @@
 .vscode
+.gstack/
+node_modules/
+.claude
