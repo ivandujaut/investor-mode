@@ -24,32 +24,42 @@ del marketplace (buscador + corredor).
 
 ## Estado actual
 
-**Fase 1 / 4** — Fundamentos (semanas 1-2)
-- [x] Auditoría de Roomix (H1, H5)
-- [x] Dominio financiero · sección 1 (conceptos básicos)
-- [x] Dominio financiero · sección 2 (contexto argentino)  
-- [ ] Dominio financiero · sección 3 (escenarios formalizados)
-- [ ] Validación con corredor matriculado
-- [ ] Dataset semilla en Supabase
-- [ ] Mockup en Figma
+Plan completo en [`docs/scope.md`](docs/scope.md). Resumen:
+
+- **Fase 1 · Fundamentos** ✅: auditoría + dominio financiero (sección 1-3, contrato del motor sección 3.3). _Pendiente:_ validación con corredor (refuerzo, no bloqueante).
+- **Fase 2 · Diseño** ✅: design system, reestructura de IA del análisis, prototipo interactivo en Figma, sistema de copy.
+- **Fase 3 · Motor** ✅: motor de cálculo en `src/engine/` (TypeScript estricto + Vitest, TDD). 20 tests verdes, typecheck limpio.
+- **Fase 4 · Cierre** 🔄: case study escrito (Cap. 1 diseño · Cap. 2 motor); pendiente polish visual (BentoGrid).
+
+_UI en Next.js y dataset en Supabase quedan como futuro/producto, fuera del scope de esta pieza._
 
 ## Documentación
 
-- [`docs/scope.md`](docs/scope.md) — qué entra y qué no en v1, plan de 8 semanas
-- [`docs/domain.md`](docs/domain.md) — finanzas inmobiliarias aplicadas al mercado argentino
-- [`docs/audit-roomix.md`](docs/audit-roomix.md) — auditoría heurística del producto actual
+- [`docs/scope.md`](docs/scope.md): qué entra y qué no en v1, plan de 4 fases / 8 semanas
+- [`docs/domain.md`](docs/domain.md): finanzas inmobiliarias aplicadas al mercado argentino + contrato del motor (sección 3.3)
+- [`docs/design.md`](docs/design.md): decisiones de diseño, sistema de copy, benchmark competitivo
+- [`docs/case-study.md`](docs/case-study.md): el caso de estudio (Cap. 1 diseño · Cap. 2 motor)
+- [`docs/audit-roomix.md`](docs/audit-roomix.md): auditoría heurística del producto actual
 
 ## Stack
 
 - Frontend: Next.js 15 (App Router) · TypeScript estricto · Tailwind
 - Backend: Server Components + Server Actions · Supabase (Postgres + Auth)
-- Testing: Mocha + Chai (TDD en el motor de cálculo)
+- Testing: Vitest (TDD en el motor de cálculo)
 - Hosting: Vercel
 - Diseño: Figma con design system mínimo derivado de la identidad visual de Roomix
 
 ## Cómo correr
 
-Sin código ejecutable todavía. Instrucciones a publicar al cierre de Fase 2 (semana 4).
+El motor de cálculo ya es ejecutable:
+
+```bash
+npm install
+npm test          # 20 tests (Vitest)
+npm run typecheck # TypeScript estricto
+```
+
+La UI todavía no existe (futuro/producto).
 
 ---
 
