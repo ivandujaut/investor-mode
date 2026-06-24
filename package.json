@@ -1,0 +1,16 @@
+{
+  "name": "modo-inversor-engine",
+  "version": "0.1.0",
+  "description": "Motor de cálculo de Modo Inversor: análisis de inversión inmobiliaria (Argentina). Lógica pura, sin UI.",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.3",
+    "vitest": "^2.1.9"
+  }
+}
