@@ -37,11 +37,15 @@ _UI en Next.js y dataset en Supabase quedan como futuro/producto, fuera del scop
 
 ## Stack
 
-- Frontend: Next.js 15 (App Router) · TypeScript estricto · Tailwind
-- Backend: Server Components + Server Actions · Supabase (Postgres + Auth)
+Lo que **hoy existe** en este repo es el motor de cálculo (lógica pura, sin UI):
+
+- Lenguaje: TypeScript estricto
 - Testing: Vitest (TDD en el motor de cálculo)
-- Hosting: Vercel
 - Diseño: Figma con design system mínimo derivado de la identidad visual de Roomix
+
+Previsto para el producto (todavía no implementado): UI en Next.js 15 (App Router) +
+Tailwind, backend con Server Components + Server Actions, dataset en Supabase (Postgres +
+Auth) y hosting en Vercel.
 
 ## Cómo correr
 
