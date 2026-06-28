@@ -66,6 +66,30 @@ Antes de las pantallas, los principios. Cada decisión pasó por estos filtros:
 
 ---
 
+## Cada decisión de diseño es una hipótesis de negocio
+
+Antes del detalle de cada pantalla, la lente con la que pienso todo esto. No diseño pantallas lindas: muevo una palanca de negocio. Roomix monetiza generando **leads calificados** para inmobiliarias. El Modo Inversor existe porque hay un **segmento de alto valor** (el que compra para invertir) que hoy el producto deja escapar a una planilla de Excel. Cada decisión de producto la pienso como una apuesta sobre ese funnel: captar a ese usuario, que confíe, y que llegue al CTA que genera el lead.
+
+*(Nota honesta: esto es un proyecto conceptual sin tráfico real, así que los impactos de abajo son hipótesis razonadas, no métricas medidas. Distingo una cosa de la otra a propósito.)*
+
+**Simplificar la pantalla = bajar el abandono antes del CTA.** Una pantalla que abruma no es un problema estético, es un usuario que rebota antes de contactar. Liderar con la respuesta (de 2.495px a 917px) acelera el "ajá": el que entiende rápido es el que aprieta "Contactar". Y al dejar la profundidad a un click, atiendo a dos públicos con una sola pantalla, sin sacrificar al usuario sofisticado que quiere auditar el número.
+
+**Hacer dinámica la tarjeta de conversión = sostener la credibilidad del lead.** La tarjeta sticky es el "carrito" del flujo: mantiene el CTA a la vista mientras el usuario explora. La conecté al selector de escenario para que el retorno se actualice en vivo. Una tarjeta de conversión que no responde es una promesa rota: el usuario juega con los supuestos, los números no se mueven, y deja de creer en el cálculo justo en el elemento que tiene que cerrarlo. La reactividad acá no es un lujo: es lo que mantiene viva la confianza que precede al clic.
+
+**La honestidad como estrategia de conversión, no en contra.** El producto dice cosas incómodas: "con crédito ponés plata de tu bolsillo cada mes", "esto es una apuesta a la apreciación", y muestra el ROI en negativo cuando lo es. Un portal que infla números genera un lead que se quema en la primera reunión con el corredor. Un producto honesto genera un lead **calificado y bien expectado**: el que contacta ya sabe en qué se mete. Eso vale más para el corredor (mejor cierre) y construye marca para Roomix (el lugar que no te miente). La honestidad no es lo opuesto a convertir, es lo que hace que la conversión valga.
+
+**El pulido comunica "producto serio".** Un ícono del sistema en vez de un carácter suelto, una tipografía consistente. En un producto financiero, un detalle descuidado le susurra al usuario "esto es una maqueta, no le creas el número". La prolijidad sostiene la credibilidad que el resto necesita para convertir. No es vanidad: es reducir la fricción de confianza.
+
+### Cómo trabajo
+
+- **Parto de un hueco de negocio, no de una pantalla.** La feature existe por un segmento de alto valor que se escapa, no porque quería diseñar algo.
+- **Escucho al usuario y ataco la causa raíz.** "No sé qué leer" lo traduje a "está abandonando antes del CTA" y toqué la jerarquía, no los colores.
+- **Itero sobre mi propio trabajo sin ego.** Colapsé lo que yo mismo había construido cuando entendí que recommití el problema que salí a matar.
+- **Verifico, no asumo.** Probé la interactividad en el entorno real antes de darla por buena.
+- **Uso las herramientas para un fin.** Manejo Figma a fondo (variables, lógica condicional, componentes de librería), pero como medio para que el producto convierta mejor, no como vitrina técnica.
+
+---
+
 ## Decisiones clave
 
 ### 1 · Cómo se muestra la información: de informe lineal a tablero escaneable
@@ -169,6 +193,26 @@ El crédito UVA convierte una renta floja en una apuesta a apreciación ("ponés
 **Honestidad sobre el estado:** hoy la segmentación vive más en el **copy y la estructura** (el "te conviene si…", el énfasis renta-vs-apreciación) que en un sistema explícito de perfiles. Es defendible para una v1: orientar sin sobre-ingeniería. Y ahora tiene **respaldo doble**: el diseño la orienta, y el motor la computa (el cap rate queda fijo entre escenarios; el ROI se mueve con la apreciación). La tesis está hecha código.
 
 **Por qué funciona:** es la diferencia entre "te tiro números" y "te ubico en tu juego". Decir *para quién* sirve respeta el "no recomendar" sin abandonar al usuario.
+
+---
+
+## Iteración: la pantalla seguía siendo "una banda"
+
+Acá viene la parte honesta. Apliqué el reencuadre (scorecard arriba, financiación colapsada) y se sentía bien. Pero le mostré la pantalla de análisis a un usuario y me dijo, textual: *"hay demasiada info, no sé qué leer."* Tenía razón, y dolía: el proyecto **nació** para matar exactamente eso (la planilla que te paraliza), y la pantalla **se había vuelto a llenar**.
+
+**El diagnóstico:** había hecho disclosure progresivo **a medias**. Puse un scorecard arriba, pero dejé *todo el informe* debajo (motor, distribución, proyección a 10 años, financiación), apilado con el mismo peso visual. El veredicto y el "te conviene" quedaban al **fondo**, después de scrollear un muro. Era *"respuesta + planilla"*, no *"respuesta"*.
+
+**El fix:** invertir la lógica. Por defecto, la pantalla muestra **solo la respuesta**:
+1. el veredicto en una línea,
+2. el scorecard (4 KPIs),
+3. el "te conviene si… / no si…",
+4. la acción (+ "Descargar informe").
+
+Y **todo el resto** (incluido el selector de escenario) colapsa detrás de un *"Ver el análisis detallado"*, interactivo, opt-in. La profundidad sigue ahí, a un click, pero no te la tira en la cara.
+
+**El resultado:** la pantalla por defecto pasó de **2.495px a 917px** (entra sin scroll). De informe a respuesta, esta vez de verdad.
+
+**Lo que me llevo:** disclosure progresivo hecho a medias **sigue siendo overload**. Y el mejor feedback es el que te marca que recommitiste el pecado que saliste a matar. Lo importante fue escucharlo y **matar densidad sin ego** (colapsar lo que yo mismo había construido).
 
 ---
 
